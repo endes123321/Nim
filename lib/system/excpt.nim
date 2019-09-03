@@ -17,15 +17,20 @@ var
     ## instead of `stdmsg.write` when printing stacktrace.
     ## Unstable API.
 
-when not defined(windows) or not defined(guiapp):
+when not defined(windows) or not defined(guiapp) and hostOS != "standalone":
   proc writeToStdErr(msg: cstring) = rawWrite(cstderr, msg)
 
-else:
+elif hostOS != "standalone":
   proc MessageBoxA(hWnd: pointer, lpText, lpCaption: cstring, uType: int): int32 {.
     header: "<windows.h>", nodecl.}
 
   proc writeToStdErr(msg: cstring) =
     discard MessageBoxA(nil, msg, nil, 0)
+
+else:
+  include "$projectpath/panicoverride"
+
+  proc writeToStdErr(msg: cstring) = rawoutput(msg)
 
 proc showErrorMessage(data: cstring) {.gcsafe.} =
   if errorMessageWriter != nil:
@@ -506,7 +511,7 @@ when defined(cpp) and appType != "lib" and
 
     quit 1
 
-when not defined(noSignalHandler) and not defined(useNimRtl):
+when not defined(noSignalHandler) and not defined(useNimRtl) and hostOS != "standalone":
   proc signalHandler(sign: cint) {.exportc: "signalHandler", noconv.} =
     template processSignal(s, action: untyped) {.dirty.} =
       if s == SIGINT: action("SIGINT: Interrupted by Ctrl-C.\n")
@@ -565,7 +570,7 @@ proc setControlCHook(hook: proc () {.noconv.}) =
   type SignalHandler = proc (sign: cint) {.noconv, benign.}
   c_signal(SIGINT, cast[SignalHandler](hook))
 
-when not defined(noSignalHandler) and not defined(useNimRtl):
+when not defined(noSignalHandler) and not defined(useNimRtl) and hostOS != "standalone":
   proc unsetControlCHook() =
     # proc to unset a hook set by setControlCHook
     c_signal(SIGINT, signalHandler)

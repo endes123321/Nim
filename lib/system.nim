@@ -3683,7 +3683,7 @@ when not defined(JS): #and not defined(nimscript):
       ## Allows you to override the behaviour of your application when CTRL+C
       ## is pressed. Only one such hook is supported.
 
-    when not defined(noSignalHandler) and not defined(useNimRtl):
+    when not defined(noSignalHandler) and not defined(useNimRtl) and hostOS != "standalone":
       proc unsetControlCHook*()
         ## Reverts a call to setControlCHook.
 
@@ -3703,10 +3703,7 @@ when not defined(JS): #and not defined(nimscript):
     when defined(memtracker):
       include "system/memtracker"
 
-    when hostOS == "standalone":
-      include "system/embedded"
-    else:
-      include "system/excpt"
+    include "system/excpt"
     include "system/chcks"
 
     # we cannot compile this with stack tracing on
