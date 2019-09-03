@@ -14,7 +14,7 @@
 {.push checks:off.}
 
 when hostOS == "standalone" or defined(panicoverride):
-  import "$projectpath/panicoverride"
+  include "$projectpath/panicoverride"
 
 const
   debugGC = false # we wish to debug the GC...
