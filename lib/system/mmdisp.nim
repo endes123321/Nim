@@ -46,7 +46,7 @@ type
 const
   PageShift = when defined(cpu16): 8 else: 12 # \
     # my tests showed no improvments for using larger page sizes.
-  PageSize = 1 shl PageShift
+  PageSize {.intdefine.} = 1 shl PageShift
   PageMask = PageSize-1
 
   MemAlign = 8 # also minimal allocatable memory block
